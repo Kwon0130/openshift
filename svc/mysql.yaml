@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql
+spec:
+  containers:
+  - name: mysql
+    image: registry.redhat.io/rhel8/mysql-80
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1"
+    env:
+    - name: MYSQL_USER
+      valueFrom:
+        secretKeyRef:
+          name: mysql-user-info
+          key: user
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-user-info
+          key: pass
+    - name: MYSQL_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-user-info
+          key: rootpass
+    envFrom:
+    - configMapRef:
+        name: mysql-info
+    volumeMounts:
+    - name: nfs-volume
+      mountPath: /mnt/Openshift/mysql
+  volumes:
+  - name: nfs-volume
+    persistentVolumeClaim:
+      claimName: mysql-pvc
